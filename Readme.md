@@ -11,6 +11,8 @@
 
 If you are developing cross platform (macOS and Linux) command line apps, and you want to use Regular expressions, `Regex` is just what you need.
 
+You can use `Regex` with [Guaka](https://github.com/oarrabi/Process) to create aweseome command line applications.
+
 ## Usage
 
 - Checking if a string matches a pattern.
