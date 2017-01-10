@@ -107,10 +107,27 @@ class RegexTests: XCTestCase {
       _ = try Regex(pattern: "\\/\\/\\/\\")
       XCTFail()
     } catch is RegexError {
-      
+
     } catch {
       XCTFail()
     }
   }
-  
+
+  static var allTests : [(String, (RegexTests) -> () throws -> Void)] {
+    return [
+      ("testItCanMatchASimpleString", testItCanMatchASimpleString),
+      ("testItMoreComplicatedStuff", testItMoreComplicatedStuff),
+      ("testItCaptureAGroup", testItCaptureAGroup),
+      ("testItCaptureMultipleStrings", testItCaptureMultipleStrings),
+      ("testItHandlesNoCaptures", testItHandlesNoCaptures),
+      ("testItReplacesStringInRange", testItReplacesStringInRange),
+      ("testItReplacesPatternWithString", testItReplacesPatternWithString),
+      ("testItReplacesPatternWithStringMultipleTimes", testItReplacesPatternWithStringMultipleTimes),
+      ("testItReplacesStringWithString", testItReplacesStringWithString),
+      ("testItReplacesStringWithStringMultipleTimes", testItReplacesStringWithStringMultipleTimes),
+      ("testTheOperator", testTheOperator),
+      ("testItCanBeMatchedInASwitch", testItCanBeMatchedInASwitch),
+      ("testItHandlesWrongPatterns", testItHandlesWrongPatterns)
+    ]
+  }
 }
