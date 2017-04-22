@@ -43,7 +43,7 @@
 
 /// Internal class that handles posix regex matching
 class __Regex {
-  
+
   var preg = regex_t()
 
   init(pattern: String, options: RegexOptions = .extended) throws {
@@ -90,8 +90,8 @@ class __Regex {
         var j = 1
 
         while regexMatches[j].rm_so != -1 {
-          let start = Int(accOffset + regexMatches[j].rm_so)
-          let end = Int(accOffset +   regexMatches[j].rm_eo)
+          let start = accOffset + Int(regexMatches[j].rm_so)
+          let end = accOffset + Int(regexMatches[j].rm_eo)
           let startIndex = original.index(original.startIndex, offsetBy: start)
           let endIndex = original.index(original.startIndex, offsetBy: end)
           groups.append((startIndex, endIndex))
