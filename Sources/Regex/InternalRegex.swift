@@ -35,92 +35,92 @@
 
 
 #if os(Linux)
-  @_exported import Glibc
+@_exported import Glibc
 #else
-  @_exported import Darwin.C
+@_exported import Darwin.C
 #endif
 
 
 /// Internal class that handles posix regex matching
 class __Regex {
 
-  var preg = regex_t()
+    var preg = regex_t()
 
-  init(pattern: String, options: RegexOptions = .extended) throws {
-    // FIXME: Nongreedy regex
-    // Cross compile PCRE and link it
-    let result = regcomp(&preg, pattern, options.rawValue)
+    init(pattern: String, options: RegexOptions = .extended) throws {
+        // FIXME: Nongreedy regex
+        // Cross compile PCRE and link it
+        let result = regcomp(&preg, pattern, options.rawValue)
 
-    if result != 0 {
-      throw RegexError.error(from: result, preg: preg)
-    }
-  }
-
-  deinit {
-    regfree(&preg)
-  }
-
-  func matches(_ string: String, options: MatchOptions = []) -> Bool {
-    var regexMatches = [regmatch_t](repeating: regmatch_t(), count: 1)
-    let result = regexec(&preg, string, regexMatches.count, &regexMatches, options.rawValue)
-
-    if result == 1 {
-      return false
+        if result != 0 {
+            throw RegexError.error(from: result, preg: preg)
+        }
     }
 
-    return true
-  }
+    deinit {
+        regfree(&preg)
+    }
 
-  func groups(_ string: String, options: MatchOptions = [])
-    -> [(String.Index, String.Index)] {
-      let original = string
-      var string = string
-      let maxMatches = 20
-      var groups: [(String.Index, String.Index)] = []
-      var accOffset = 0
-
-      while true {
-        var regexMatches = [regmatch_t](repeating: regmatch_t(), count: maxMatches)
+    func matches(_ string: String, options: MatchOptions = []) -> Bool {
+        var regexMatches = [regmatch_t](repeating: regmatch_t(), count: 1)
         let result = regexec(&preg, string, regexMatches.count, &regexMatches, options.rawValue)
 
         if result == 1 {
-          break
+            return false
         }
 
-        var j = 1
+        return true
+    }
 
-        while regexMatches[j].rm_so != -1 {
-          let start = accOffset + Int(regexMatches[j].rm_so)
-          let end = accOffset + Int(regexMatches[j].rm_eo)
-          let startIndex = original.index(original.startIndex, offsetBy: start)
-          let endIndex = original.index(original.startIndex, offsetBy: end)
-          groups.append((startIndex, endIndex))
-          j += 1
-        }
+    func groups(_ string: String, options: MatchOptions = [])
+        -> [(String.Index, String.Index)] {
+            let original = string
+            var string = string
+            let maxMatches = 20
+            var groups: [(String.Index, String.Index)] = []
+            var accOffset = 0
 
-        let offset = Int(regexMatches[0].rm_eo)
-        accOffset += offset
-        let startIndex = string.utf8.index(string.utf8.startIndex, offsetBy: offset)
-        if let offsetString = String(string.utf8[startIndex ..< string.utf8.endIndex]) {
-          string = offsetString
-        } else {
-          break
-        }
-      }
+            while true {
+                var regexMatches = [regmatch_t](repeating: regmatch_t(), count: maxMatches)
+                let result = regexec(&preg, string, regexMatches.count, &regexMatches, options.rawValue)
 
-      return groups
-  }
+                if result == 1 {
+                    break
+                }
+
+                var j = 1
+
+                while regexMatches[j].rm_so != -1 {
+                    let start = accOffset + Int(regexMatches[j].rm_so)
+                    let end = accOffset + Int(regexMatches[j].rm_eo)
+                    let startIndex = original.index(original.startIndex, offsetBy: start)
+                    let endIndex = original.index(original.startIndex, offsetBy: end)
+                    groups.append((startIndex, endIndex))
+                    j += 1
+                }
+
+                let offset = Int(regexMatches[0].rm_eo)
+                accOffset += offset
+                let startIndex = string.utf8.index(string.utf8.startIndex, offsetBy: offset)
+                if let offsetString = String(string.utf8[startIndex ..< string.utf8.endIndex]) {
+                    string = offsetString
+                } else {
+                    break
+                }
+            }
+
+            return groups
+    }
 
 }
 
 public struct RegexError: Error {
-  public let description: String
+    public let description: String
 
-  fileprivate static func error(from result: Int32, preg: regex_t) -> RegexError {
-    var preg = preg
-    var buffer = [Int8](repeating: 0, count: Int(BUFSIZ))
-    regerror(result, &preg, &buffer, buffer.count)
-    let description = String(validatingUTF8: buffer)!
-    return RegexError(description: description)
-  }
+    fileprivate static func error(from result: Int32, preg: regex_t) -> RegexError {
+        var preg = preg
+        var buffer = [Int8](repeating: 0, count: Int(BUFSIZ))
+        regerror(result, &preg, &buffer, buffer.count)
+        let description = String(validatingUTF8: buffer)!
+        return RegexError(description: description)
+    }
 }
