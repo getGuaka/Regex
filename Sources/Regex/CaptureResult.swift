@@ -52,7 +52,7 @@ extension CaptureResult {
     let originalString: String
 
     lazy var string: String = {
-      return self.originalString[self.startIndex..<self.endIndex]
+      return String(self.originalString[self.startIndex..<self.endIndex])
     }()
 
     init(originalString: String, startIndex: String.Index, endIndex: String.Index) {
